@@ -45,8 +45,8 @@ def atmosphere_4a():
         Compute the pressure, temperature and specific humidity at the layer center with the mean.
     """
     
-    # df_atm, meta = parse_atmosphere_file("lbl_data/atm4afmt_Koll2023.dsf")
-    df_atm, meta = parse_atmosphere_file("../lbl_data/atm4afmt_idealized_atmosphere.dsf")
+    df_atm, meta = parse_atmosphere_file("lbl_data/atm4afmt_Koll2023.dsf")
+    # df_atm, meta = parse_atmosphere_file("../lbl_data/atm4afmt_idealized_atmosphere.dsf")
     p_half          = df_atm["pressure"].values * 100        # shape: (n_levels,)
     T_half       = df_atm["temperature"].values.copy()     # shape: (n_levels,)
     q_half = df_atm["specific_humidity"].values # shape: (n_levels,)
