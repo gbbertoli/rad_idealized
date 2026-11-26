@@ -1,21 +1,16 @@
+# Functions to compute the cooling to space
+
 import numpy as np
 from constants import g, cp, nu_rot, nu_vr, nu_co2, nu_min, nu_max, p0, cos_theta
-# from optical import (B, tau_inverse_h2o, tau_inverse_co2, 
-#                          trans_inverse_h2o, trans_inverse_co2, 
-#                          k_h2o, k_co2, total_pq, local_pq)
 import optical
 import parameters
 
-# kappa_rot = parameters.kappa_rot
-# l_rot = parameters.l_rot
-# kappa_vr = parameters.kappa_vr
-# l_vr = parameters.l_vr
-# kappa_co2 = parameters.kappa_co2
-# l_co2 = parameters.l_co2
 
-# CTS for a given transmissivity
+
 def cts_trans_nu(p_half, q_half, T, trans, nu):
-  
+    """
+        Spectrally resolved CTS for a given transmissivity
+    """  
     C = -np.pi * g / cp
       
     dtransp = (trans[1:] - trans[:-1]) / (p_half[1:].reshape(-1,1) - p_half[:-1].reshape(-1,1))
@@ -23,15 +18,20 @@ def cts_trans_nu(p_half, q_half, T, trans, nu):
     return HR_nu
 
 def cts_trans(p_half, q_half, T, trans, nu):
+    """
+        Spectrally integrated CTS for a given transmissivity
+    """
     delta_nu = nu[1:] - nu[:-1]
     integrand = cts_trans_nu(p_half, q_half, T, trans, nu)
     
-    # Cooling rate over each band
     HR = np.sum((integrand[:,1:] + integrand[:,:-1])/2 * delta_nu, axis=-1)
     return HR
 
-    # Reference
 def cts_h2o(p_half, q_half, T):
+    """
+        Reference spectrally integrated CTS for H2O on each band.
+        Sum the 4 bands to obtain cooling over the full spectrum.
+    """
     pq = optical.local_pq(p_half, q_half)
 
     # Wavenumber grid
@@ -62,6 +62,10 @@ def cts_h2o(p_half, q_half, T):
 
 # tau = 1
 def cts_tau1_h2o(p,p_half,q, q_half,T,T_half):
+    """
+        tau = 1 approximation of the spectrally integrated CTS for H2O on each band side.
+        Sum the 4 band sides to obtain cooling over the full spectrum.
+    """
 
     pq = optical.total_pq(p,q)
     nu = optical.tau_inverse_h2o(pq, 1)
@@ -91,6 +95,10 @@ def cts_tau1_h2o(p,p_half,q, q_half,T,T_half):
 
 # midpoint
 def cts_transmid_h2o(p,p_half,q, q_half,T,T_half):
+    """
+        Midpoint approximation of the spectrally integrated CTS for H2O on each band side.
+        Sum the 4 band sides to obtain cooling over the full spectrum.
+    """
 
     pq = optical.total_pq(p,q)
     C = np.pi * p * q/(cp*p0*cos_theta*pq)
@@ -127,8 +135,11 @@ def cts_transmid_h2o(p,p_half,q, q_half,T,T_half):
     HR_band[3] = H4
     return HR_band
 
-# Reference
 def cts_co2(p_half, q_co2, T):
+    """
+        Reference spectrally integrated CTS for CO2 on each band.
+        Sum the 2 band sides to obtain cooling over the full spectrum.
+    """
     pq = optical.local_pq(p_half, q_co2 + np.zeros_like(p_half))
 
     # Wavenumber grid
@@ -157,7 +168,10 @@ def cts_co2(p_half, q_co2, T):
 
 # tau = 1
 def cts_tau1_co2(p,p_half,q_co2,T,T_half):
-
+    """
+        tau = 1 approximation of the spectrally integrated CTS for CO2 on each band side.
+        Sum the 2 band sides to obtain cooling over the full spectrum.
+    """
     pq = optical.total_pq(p,q_co2 + np.zeros_like(p))
     nu = optical.tau_inverse_co2(pq, 1)
     C = np.pi * p * q_co2/(cp*p0*cos_theta*pq)
@@ -178,7 +192,10 @@ def cts_tau1_co2(p,p_half,q_co2,T,T_half):
 
 # midpoint
 def cts_transmid_co2(p,p_half,q_co2,T,T_half):
-
+    """
+        Midpoint approximation of the spectrally integrated CTS for CO2 on each band side.
+        Sum the 2 band sides to obtain cooling over the full spectrum.
+    """
     pq = optical.total_pq(p,q_co2 + np.zeros_like(p))
     nu =  np.linspace(nu_min, nu_max, int((nu_max - nu_min + 1)/100))
     C = np.pi * p * q_co2/(cp*p0*cos_theta*pq)

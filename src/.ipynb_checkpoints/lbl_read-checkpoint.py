@@ -37,7 +37,14 @@ def parse_atmosphere_file(filepath):
     df = pd.DataFrame(records)
     return df, metadata
 
+
 def atmosphere_4a():
+    """
+        Read the line-by-line file to recover the pressure, temperature and specific humidity
+        at the layer interfaces.
+        Compute the pressure, temperature and specific humidity at the layer center with the mean.
+    """
+    
     # df_atm, meta = parse_atmosphere_file("lbl_data/atm4afmt_Koll2023.dsf")
     df_atm, meta = parse_atmosphere_file("../lbl_data/atm4afmt_idealized_atmosphere.dsf")
     p_half          = df_atm["pressure"].values * 100        # shape: (n_levels,)
@@ -50,19 +57,6 @@ def atmosphere_4a():
     q = (q_half[1:] + q_half[:-1])/2
     return T, T_half, q, q_half, p, p_half
 
-# #!/usr/bin/env python
-# # coding: utf-8
-# import os as os
-# import glob
-# import sys
-# import numpy as np
-# import matplotlib.pyplot as plt
-# import re
-# # import xarray as xr
-# import argparse
-
-# import gzip
-# from contextlib import contextmanager
 
 @contextmanager
 def open_txt(chemin, mode='r', encoding='utf-8'):
@@ -82,7 +76,6 @@ def parse_fortran_float(val_str):
     if val_str.upper() == 'NAN':
         return float('nan')
     
-    # Si le format scientifique n'a pas de 'E', on l'ajoute.
     if 'E' not in val_str.upper():
         val_str = re.sub(r'(?<=\d)([-+])(?=\d+)', r'E\1', val_str)
         

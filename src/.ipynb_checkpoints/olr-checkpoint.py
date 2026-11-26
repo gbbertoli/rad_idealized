@@ -1,26 +1,25 @@
+# Functions to compute the outgoing longwave radiation
+
 import numpy as np
 import optical
 import parameters
 from constants import nu_min, nu_max
 
-kappa_rot = parameters.kappa_rot
-l_rot = parameters.l_rot
-kappa_vr = parameters.kappa_vr
-l_vr = parameters.l_vr
-kappa_co2 = parameters.kappa_co2
-l_co2 = parameters.l_co2
 
-# OLR for a given transmissivity
 def olr_trans(p_half, q_half, T, T_half, trans, nu):
+    """
+        OLR for a given transmissivity
+    """
     
     integrand = np.pi * optical.B(nu.reshape(1,-1), T.reshape(-1,1)) * (trans[:-1] - trans[1:])
-
     olr_atm = np.sum(integrand, axis=0)
     olr_surf = (np.pi * optical.B(nu.reshape(1,-1), T_half[-1].reshape(-1,1)) * trans[-1].reshape(1,-1)).ravel()
     return olr_atm, olr_surf
 
-# Reference
 def olr_h2o(p_half, q_half, T, Ts):
+    """
+        Reference OLR for H2O
+    """
     pq = optical.local_pq(p_half, q_half)
     nu = np.linspace(nu_min, nu_max, int((nu_max - nu_min + 1)/100))
     tau_local = pq.reshape(-1,1) * optical.k_h2o(nu).reshape(1,-1)
@@ -34,8 +33,10 @@ def olr_h2o(p_half, q_half, T, Ts):
     return olr_atm, olr_surf
 
 
-# tau = 1
 def olr_tau1_h2o(p_half, q_half, T, Ts):
+    """
+        tau = 1 approximation of the OLR for H2O
+    """
     pq = optical.local_pq(p_half, q_half)
     nu = np.linspace(nu_min, nu_max, int((nu_max - nu_min + 1)/100))
     tau_local = pq.reshape(-1,1) * optical.k_h2o(nu).reshape(1,-1)
@@ -56,8 +57,10 @@ def olr_tau1_h2o(p_half, q_half, T, Ts):
     olr_surf[~mask] = integrand_surf[~mask]
     return olr_atm, olr_surf
 
-# midpoint
 def olr_transmid_h2o(p_half, q_half, T, Ts):
+    """
+        Midpoint approximation of the OLR for H2O
+    """
     pq = optical.local_pq(p_half, q_half)
     nu = np.linspace(nu_min, nu_max, int((nu_max - nu_min + 1)/100))
     tau_local = pq.reshape(-1,1) * optical.k_h2o(nu).reshape(1,-1)
@@ -76,8 +79,10 @@ def olr_transmid_h2o(p_half, q_half, T, Ts):
 
     return olr_atm, olr_surf
 
-# Reference
 def olr_co2(p_half, qco2, T, Ts):
+    """
+        Reference OLR for CO2
+    """
     pq_co2 = optical.local_pq(p_half, qco2 + np.zeros_like(p_half))
 
     nu = np.linspace(nu_min, nu_max, int((nu_max - nu_min + 1)/100))
@@ -91,8 +96,10 @@ def olr_co2(p_half, qco2, T, Ts):
 
     return olr_atm, olr_surf
     
-# tau = 1
 def olr_tau1_co2(p_half, qco2, T, Ts):
+    """
+        tau = 1 approximation of the OLR for CO2
+    """
     pq_co2 = optical.local_pq(p_half, qco2 + np.zeros_like(p_half))
     
     nu = np.linspace(nu_min, nu_max, int((nu_max - nu_min + 1)/100))
@@ -114,8 +121,10 @@ def olr_tau1_co2(p_half, qco2, T, Ts):
     olr_surf[~mask] = integrand_surf[~mask]
     return olr_atm, olr_surf
 
-# midpoint
 def olr_transmid_co2(p_half, qco2, T, Ts):
+    """
+        Midpoint approximation of the OLR for CO2
+    """
     pq_co2 = optical.local_pq(p_half, qco2 + np.zeros_like(p_half))
     
     nu = np.linspace(nu_min, nu_max, int((nu_max - nu_min + 1)/100))
@@ -136,8 +145,10 @@ def olr_transmid_co2(p_half, qco2, T, Ts):
     return olr_atm, olr_surf
 
     
-# Reference
 def olr_h2o_co2(p_half, q_half, qco2, T, Ts):
+    """
+        Reference OLR for an atmosphere with H2O and CO2
+    """
     pq_h2o_band = optical.local_pq(p_half, q_half)
     pq_co2 = optical.local_pq(p_half, qco2 + np.zeros_like(q_half))
 
@@ -152,8 +163,10 @@ def olr_h2o_co2(p_half, q_half, qco2, T, Ts):
     olr_surf = np.pi * optical.B(nu, Ts) * trans[-1]
     return olr_atm, olr_surf
 
-# tau = 1
 def olr_tau1_h2o_co2(p_half, q_half, qco2, T, Ts):
+    """
+        tau = 1 approximation of the OLR for an atmosphere with H2O and CO2
+    """
     pq_h2o_band = optical.local_pq(p_half, q_half)
     pq_co2 = optical.local_pq(p_half, qco2 + np.zeros_like(q_half))
     
@@ -176,8 +189,10 @@ def olr_tau1_h2o_co2(p_half, q_half, qco2, T, Ts):
     olr_surf[~mask] = integrand_surf[~mask]
     return olr_atm, olr_surf
 
-# midpoint
 def olr_transmid_h2o_co2(p_half, q_half, qco2, T, Ts):
+    """
+        Midpoint approximation of the OLR for an atmosphere with H2O and CO2
+    """    
     pq_h2o_band = optical.local_pq(p_half, q_half)
     pq_co2 = optical.local_pq(p_half, qco2 + np.zeros_like(q_half))
     
